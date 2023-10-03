@@ -48,14 +48,6 @@ def generate_launch_description():
 		output = 'screen'
 	)
 	
-	connect_map_odom_node = Node(
-		package = 'tf2_ros',
-		executable = 'static_transform_publisher',
-		arguments = '--frame-id map --child-frame-id odom'.split(' '),
-		parameters = [{'use_sim_time': use_sim_time}],
-		name = 'static_transform_publisher'
-	)
-	
 	ld = LaunchDescription()
 	
 	ld.add_action(gazebo_node)
@@ -63,6 +55,5 @@ def generate_launch_description():
 	ld.add_action(robot_state_publisher_node)
 	# ld.add_action(joint_state_publisher_node)
 	# ld.add_action(rviz2_node)
-	ld.add_action(connect_map_odom_node)
 	
 	return ld

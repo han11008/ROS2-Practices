@@ -196,7 +196,6 @@
 					<remapping>~/out:=imu_data</remapping>
 				</ros>
 				<initial_orientation_as_reference>false</initial_orientation_as_reference>
-				<robot_base_frame>dummy</robot_base_frame>
 			</plugin>
 		</sensor>
 	</gazebo>
@@ -231,7 +230,6 @@
 					<remapping>~/out:=ray_data</remapping>
 				</ros>
 				<output_type>sensor_msgs/LaserScan</output_type>
-				<robot_base_frame>dummy</robot_base_frame>
 			</plugin>
 		</sensor>
 	</gazebo>

@@ -14,7 +14,7 @@ def generate_launch_description():
 	publish_period_sec = LaunchConfiguration('publish_period_sec', default='1')
 	configuration_directory = LaunchConfiguration('configuration_directory', default=os.path.join(pkg_share, 'config'))
 	configuration_basename = LaunchConfiguration('configuration_basename', default='config.lua')
-	rviz_config_dir = os.path.join(pkg_share, 'config')+'/cartographer.rviz'
+	rviz_config_dir = os.path.join(pkg_share, 'rviz/cartographer.rviz')
 
 	cartographer_node = Node(
 		package = 'cartographer_ros',
