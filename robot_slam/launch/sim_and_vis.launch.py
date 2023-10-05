@@ -9,7 +9,7 @@ def generate_launch_description():
 	pkg_name = 'robot_slam'
 	robot_name = 'robot'
 	urdf_name = 'robot_descript.urdf'
-	world_name = 'fish_world.sdf'
+	world_name = 'room.sdf'
 	
 	use_sim_time = LaunchConfiguration('use_sim_time', default='true')
 	pkg_share = FindPackageShare(package=pkg_name).find(pkg_name)
@@ -24,7 +24,7 @@ def generate_launch_description():
 	spawn_entity_node = Node(
 		package = 'gazebo_ros',
 		executable = 'spawn_entity.py',
-		arguments = ['-entity', robot_name, '-file', urdf_model_path, '-z', '0.076'],
+		arguments = ['-entity', robot_name, '-file', urdf_model_path],
 	)
 	
 	robot_state_publisher_node = Node(

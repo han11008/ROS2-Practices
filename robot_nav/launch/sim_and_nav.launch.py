@@ -9,12 +9,15 @@ from launch_ros.actions import Node
 def generate_launch_description():
 	pkg_name = 'robot_nav'
 	pkg_share = get_package_share_directory(pkg_name)
+	robot_name = 'robot_descript'
+	world_name = 'room'
+	map_name = 'room'
 	
 	use_sim_time = LaunchConfiguration('use_sim_time', default='true')
 	ld = LaunchDescription()
 	
-	robot_path = os.path.join(pkg_share, 'urdf/robot_descript.urdf')
-	world_path = os.path.join(pkg_share, 'world/fish_world.sdf')
+	robot_path = os.path.join(pkg_share, f'urdf/{robot_name}.urdf')
+	world_path = os.path.join(pkg_share, f'world/{world_name}.sdf')
 	
 	gazebo_node = ExecuteProcess(
 		cmd = f'gazebo {world_path} -s libgazebo_ros_init.so -s libgazebo_ros_factory.so'.split(' '),
@@ -24,7 +27,7 @@ def generate_launch_description():
 	spawn_entity_node = Node(
 		package = 'gazebo_ros',
 		executable = 'spawn_entity.py',
-		arguments = f'-entity robot -file {robot_path} -z 0.076'.split(' ')
+		arguments = f'-entity robot -file {robot_path}'.split(' ')
 	)
 	
 	robot_state_publisher_node = Node(
@@ -38,7 +41,7 @@ def generate_launch_description():
 	ld.add_action(spawn_entity_node)
 	ld.add_action(robot_state_publisher_node)
 	
-	map_path = os.path.join(pkg_share, 'map/example.yaml')
+	map_path = os.path.join(pkg_share, f'map/{map_name}.yaml')
 	param_path = os.path.join(pkg_share, 'param/nav2_params.yaml')
 	nav2_share_dir = get_package_share_directory('nav2_bringup')
 	nav2_launch_path = os.path.join(nav2_share_dir, 'launch/bringup_launch.py')

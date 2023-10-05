@@ -22,8 +22,7 @@ def generate_launch_description():
 		name = 'cartographer_node',
 		arguments = ['-configuration_directory', configuration_directory, '-configuration_basename', configuration_basename],
 		parameters = [{'use_sim_time': use_sim_time}],
-		remappings=[('/scan', '/ray_data')],
-		output = 'screen'
+		remappings=[('/scan', '/ray_data')]
 	)
 	
 	cartographer_occupancy_grid_node = Node(
@@ -31,8 +30,7 @@ def generate_launch_description():
 		executable = 'cartographer_occupancy_grid_node',
 		name = 'cartographer_occupancy_grid_node',
 		arguments = ['-resolution', resolution, '-publish_period_sec', publish_period_sec],
-		parameters = [{'use_sim_time': use_sim_time}],
-		output = 'screen'
+		parameters = [{'use_sim_time': use_sim_time}]
 	)
 	
 	rviz2_node = Node(
