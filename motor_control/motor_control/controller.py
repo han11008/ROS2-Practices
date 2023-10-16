@@ -50,16 +50,17 @@ class Controller(Node):
 					break
 		except Exception as e:
 			self.get_logger().info(e)
+		finally:
+			raise SystemExit
 
 def main(args=None):
 	rclpy.init(args=args)
 	controller = Controller()
 	try:
-		rclpy.spin_once(controller)
+		rclpy.spin(controller)
+	except SystemExit:
 		controller.destroy_node()
 		rclpy.shutdown()
-	except KeyboardInterrupt:
-		pass
 
 if __name__ == '__main__':
 	main()

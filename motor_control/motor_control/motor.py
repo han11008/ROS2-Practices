@@ -104,6 +104,7 @@ class Listener(Node):
 		if msg.data == CMDS['QUIT']:
 			self.cleanMotor()
 			self.get_logger().info(log + 'quit')
+			raise SystemExit
 		elif msg.data == CMDS['FORWARD']:
 			log += self.motor.forward()
 			self.get_logger().info(log)
@@ -140,10 +141,9 @@ def main(args=None):
 	listener = Listener()
 	try:
 		rclpy.spin(listener)
+	except SystemExit:
 		listener.destroy_node()
 		rclpy.shutdown()
-	except KeyboardInterrupt:
-		pass
 
 if __name__ == '__main__':
 	main()
