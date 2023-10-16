@@ -4,6 +4,7 @@ from std_msgs.msg import String
 import termios, tty, select, sys
 
 CMDS = {'QUIT': 'q',
+	'STOP': 's',
 	'FORWARD': 'w',
 	'BACKWARD': 'x',
 	'TURN_LEFT': 'a',
@@ -20,10 +21,12 @@ class Controller(Node):
 		direction = 'Reading from the keyboard and publish to control the motor.\n' +\
 		'w/x: go forward/backward\n' +\
 		'a/d: turn left/right\n' +\
-		'q: stop motor controlling\n' +\
+		's: stop\n' +\
+		'q: end motor controlling\n' +\
 		'j/l: half/double duty cycle\n' +\
 		'k/i: half/double frequency\n' +\
-		'ctrl+c: stop teleop'
+		'ctrl+c: stop teleop\n' +\
+		'---------------------------------------------'
 		print(direction)
 		self.termios_set = termios.tcgetattr(sys.stdin)
 		self.teleop()

@@ -4,6 +4,7 @@ from rclpy.node import Node
 from std_msgs.msg import String
 
 CMDS = {'QUIT': 'q',
+	'STOP': 's',
 	'FORWARD': 'w',
 	'BACKWARD': 'x',
 	'TURN_LEFT': 'a',
@@ -32,11 +33,15 @@ class KC_MOTOR:
 		self.pwm = GPIO.PWM(en_pin, self.freq)
 		self.pwm.start(self.duty_cycle)
 
-	def quit(self):
+	def stop(self):
 		GPIO.output(self.motor_right[0], False)
 		GPIO.output(self.motor_right[1], False)
 		GPIO.output( self.motor_left[0], False)
 		GPIO.output( self.motor_left[1], False)
+		return 'stop'
+
+	def quit(self):
+		self.stop()
 		return 'quit'
 
 	def forward(self):
@@ -53,19 +58,19 @@ class KC_MOTOR:
 		GPIO.output( self.motor_left[1], True)
 		return 'go backward'
 
-	def left(self):
+	def left_side_forward(self):
 		GPIO.output(self.motor_right[0], True)
 		GPIO.output(self.motor_right[1], False)
 		GPIO.output( self.motor_left[0], False)
 		GPIO.output( self.motor_left[1], False)
-		return 'turn left'
+		return 'left-side go forward(turn right)'
 
-	def right(self):
+	def right_side_forward(self):
 		GPIO.output(self.motor_right[0], False)
 		GPIO.output(self.motor_right[1], False)
 		GPIO.output( self.motor_left[0], True)
 		GPIO.output( self.motor_left[1], False)
-		return 'turn right'
+		return 'right-side go forward(turn left)'
 
 	def half_dc(self):
 		self.duty_cycle //= 2
@@ -105,6 +110,9 @@ class Listener(Node):
 			self.cleanMotor()
 			self.get_logger().info(log + 'quit')
 			raise SystemExit
+		elif msg.data == CMDS['STOP']:
+			log += self.motor.stop()
+			self.get_logger().info(log)
 		elif msg.data == CMDS['FORWARD']:
 			log += self.motor.forward()
 			self.get_logger().info(log)
@@ -112,10 +120,10 @@ class Listener(Node):
 			log += self.motor.backward()
 			self.get_logger().info(log)
 		elif msg.data == CMDS['TURN_LEFT']:
-			log += self.motor.left()
+			log += self.motor.right_side_forward()
 			self.get_logger().info(log)
 		elif msg.data == CMDS['TURN_RIGHT']:
-			log += self.motor.right()
+			log += self.motor.left_side_forward()
 			self.get_logger().info(log)
 		elif msg.data == CMDS['HALF_DC']:
 			log += self.motor.half_dc()
@@ -144,6 +152,8 @@ def main(args=None):
 	except SystemExit:
 		listener.destroy_node()
 		rclpy.shutdown()
+	except KeyboardInterrupt:
+		pass
 
 if __name__ == '__main__':
 	main()
