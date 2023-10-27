@@ -2,22 +2,10 @@ import RPi.GPIO as GPIO
 import math
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
 from nav_msgs.msg import Odometry
+from std_msgs.msg import Bool
 from geometry_msgs.msg import TransformStamped, Pose, Twist
 
-CMDS = {
-	'QUIT': 'q',
-	'STOP': 's',
-	'FORWARD': 'w',
-	'BACKWARD': 'x',
-	'TURN_LEFT': 'a',
-	'TURN_RIGHT': 'd',
-}
-
-LINEAR_SPEED = 0.4 # m/s
-DEGREE = 60 # per second
-RADIAN = DEGREE * math.pi / 180
 TF_PUB_PERIOD = 0.1 # second
 
 class KC_MOTOR:
@@ -74,48 +62,33 @@ class KC_MOTOR:
 		return 'turn left'
 
 class Listener(Node):
-	def __init__(self):
+	def __init__(self, ):
 		super().__init__('motor_listener_node')
 		self.initOdom()
 		self.motor = KC_MOTOR()
-		self.listener = self.create_subscription(String, 'motor_cmd_topic', self.getCmd, 10)
+		self.listener = self.create_subscription(Twist, 'cmd_vel', self.getCmd, 10)
+		self.end_listener = self.create_subscription(Bool, 'kill_remote', self.endListening, 1)
 		self.get_logger().info('Start listening to commands...')
 
 	def getCmd(self, msg):
-		log = f'Receive "{msg.data}": '
-		if msg.data == CMDS['QUIT']:
-			log += self.motor.quit()
+		self.twist = msg
+		if msg.linear.x == 0 and msg.angular.z == 0:
+			log = self.motor.stop()
+		elif msg.linear.x > 0:
+			log = self.motor.forward()
+		elif msg.linear.x < 0:
+			log = self.motor.backward()
+		elif msg.angular.z > 0:
+			log = self.motor.turn_left()
+		elif msg.angular.z < 0:
+			log = self.motor.turn_right()
+		self.get_logger().info(log)
+
+	def endListening(self, msg):
+		if msg.data:
+			log = self.motor.quit()
 			self.get_logger().info(log)
 			raise SystemExit
-
-		elif msg.data == CMDS['STOP']:
-			log += self.motor.stop()
-			self.twist.linear.x = 0.0
-			self.twist.angular.z = 0.0
-
-		elif msg.data == CMDS['FORWARD']:
-			log += self.motor.forward()
-			self.twist.linear.x = LINEAR_SPEED
-			self.twist.angular.z = 0.0
-
-		elif msg.data == CMDS['BACKWARD']:
-			log += self.motor.backward()
-			self.twist.linear.x = -LINEAR_SPEED
-			self.twist.angular.z = 0.0
-
-		elif msg.data == CMDS['TURN_LEFT']:
-			log += self.motor.turn_left()
-			self.twist.linear.x = 0.0
-			self.twist.angular.z = RADIAN
-
-		elif msg.data == CMDS['TURN_RIGHT']:
-			log += self.motor.turn_right()
-			self.twist.linear.x = 0.0
-			self.twist.angular.z = -RADIAN
-
-		else:
-			log += 'not defined'
-		self.get_logger().info(log)
 
 	def initOdom(self):
 		self.pose = Pose()

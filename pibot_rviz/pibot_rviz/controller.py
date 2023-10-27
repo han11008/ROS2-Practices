@@ -1,7 +1,8 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
-import termios, tty, select, sys
+from std_msgs.msg import Bool
+from geometry_msgs.msg import Twist
+import termios, tty, select, sys, math
 
 CMDS = {
 	'QUIT': 'q',
@@ -12,18 +13,31 @@ CMDS = {
 	'TURN_RIGHT': 'd',
 }
 
+LINEAR_SPEED = 0.4 # m/s
+DEGREE = 60 # per second
+RADIAN = DEGREE * math.pi / 180
+
+MSGS = {
+	CMDS['STOP']: [0.0, 0.0],
+	CMDS['FORWARD']: [LINEAR_SPEED * 1.0, 0.0],
+	CMDS['BACKWARD']: [-LINEAR_SPEED * 1.0, 0.0],
+	CMDS['TURN_LEFT']: [0.0, RADIAN * 1.0],
+	CMDS['TURN_RIGHT']: [0.0, -RADIAN * 1.0],
+}
+
 class Controller(Node):
 	def __init__(self):
 		super().__init__('motor_controller_node')
-		self.publisher = self.create_publisher(String, 'motor_cmd_topic', 10)
-		direction = 'Reading from the keyboard and publish to control the motor.\n' +\
+		self.publisher = self.create_publisher(Twist, 'cmd_vel', 10)
+		self.end_publisher = self.create_publisher(Bool, 'kill_remote', 1)
+		guide = 'Reading from the keyboard and publish to control the motor.\n' +\
 		'w/x: go forward/backward\n' +\
 		'a/d: turn left/right\n' +\
 		's: stop\n' +\
 		'q: end motor controlling\n' +\
 		'ctrl+c: stop teleop\n' +\
 		'---------------------------------------------'
-		print(direction)
+		print(guide)
 		self.termios_set = termios.tcgetattr(sys.stdin)
 		self.teleop()
 
@@ -40,9 +54,15 @@ class Controller(Node):
 				key = self.getKey()
 				# self.get_logger().info(f'Key {key} pressed')
 				if key in CMDS.values():
-					cmd = String()
-					cmd.data = key
-					self.publisher.publish(cmd)
+					if key == 'q':
+						end_cmd = Bool()
+						end_cmd.data = True
+						self.end_publisher.publish(end_cmd)
+					else:
+						cmd = Twist()
+						cmd.linear.x = MSGS[key][0]
+						cmd.angular.z = MSGS[key][1]
+						self.publisher.publish(cmd)
 					self.get_logger().info(f'Key {key} pressed')
 				elif key == '\x03':
 					self.get_logger().info('Stop teleop')
