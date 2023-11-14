@@ -162,7 +162,7 @@
 			<ray>
 				<scan>
 					<horizontal>
-						<samples>800</samples>
+						<samples>360</samples>
 						<resolution>1</resolution>
 						<min_angle>-3.14159265</min_angle>
 						<max_angle>3.14159265</max_angle>
@@ -184,7 +184,6 @@
 					<remapping>~/out:=scan</remapping>
 				</ros>
 				<output_type>sensor_msgs/LaserScan</output_type>
-				<frame_name>laser_link</frame_name>
 			</plugin>
 		</sensor>
 	</gazebo>
